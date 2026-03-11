@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARTGIVES — Create. Connect. Give.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0a06;
+    --paper: #f5f0e8;
+    --warm: #f2e6cc;
+    --rust: #c4410c;
+    --gold: #d4a843;
+    --sage: #4a6741;
+    --clay: #8b4a2c;
+    --error: #b5280f;
+    --success: #3a7d34;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+    border-bottom: 1px solid rgba(13,10,6,0.15);
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+    z-index: 100;
+  }
+
+  .wordmark {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .wordmark span { color: var(--rust); }
+
+  nav { display: flex; gap: 2.5rem; align-items: center; }
+
+  nav a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    text-decoration: none;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    cursor: pointer;
+  }
+
+  nav a:hover { opacity: 1; }
+  nav a.active { opacity: 1; border-bottom: 2px solid var(--rust); padding-bottom: 2px; }
+
+  .nav-cta {
+    background: var(--ink);
+    color: var(--paper) !important;
+    padding: 0.6rem 1.4rem;
+    opacity: 1 !important;
+    border-radius: 2px;
+    transition: background 0.2s !important;
+    border: none !important;
+  }
+
+  .nav-cta:hover { background: var(--rust) !important; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; animation: pageIn 0.4s ease; }
+
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    background: var(--rust);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 1rem 2rem;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.25s;
+    border-radius: 2px;
+  }
+
+  .btn-primary:hover { background: var(--clay); transform: translateY(-2px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 1rem 2rem;
+    border: 1.5px solid var(--ink);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.25s;
+    border-radius: 2px;
+  }
+
+  .btn-secondary:hover { background: var(--ink); color: var(--paper); }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rust);
+    opacity: 0.3;
+    max-width: 100px;
+  }
+
+  /* ── TICKER ── */
+  .ticker {
+    background: var(--rust);
+    color: var(--paper);
+    overflow: hidden;
+    padding: 0.65rem 0;
+    white-space: nowrap;
+  }
+
+  .ticker-inner {
+    display: inline-flex;
+    gap: 4rem;
+    animation: ticker 18s linear infinite;
+  }
+
+  .ticker span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  @keyframes ticker {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ══════════════════════════════════
+     PAGE: HOME
+  ══════════════════════════════════ */
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 85vh;
+    position: relative;
+  }
+
+  .hero-text {
+    padding: 6rem 3rem 6rem 5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s forwards 0.2s;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.2rem, 5.5vw, 5.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.9s forwards 0.4s;
+  }
+
+  .hero h1 em { font-style: italic; color: var(--rust); }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    max-width: 420px;
+    opacity: 0;
+    animation: fadeUp 0.9s forwards 0.6s;
+    color: rgba(13,10,6,0.7);
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.9s forwards 0.8s;
+  }
+
+  .hero-canvas {
+    position: relative;
+    background: var(--warm);
+    overflow: hidden;
+  }
+
+  .hero-canvas canvas { width: 100%; height: 100%; display: block; }
+
+  .canvas-caption {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.45;
+  }
+
+  /* stat strip */
+  .stat-strip {
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    justify-content: space-around;
+    padding: 2.5rem 4rem;
+    border-top: 3px solid var(--rust);
+  }
+
+  .stat { text-align: center; }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin-top: 0.5rem;
+  }
+
+  /* how it works */
+  .how {
+    padding: 8rem 5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4rem;
+  }
+
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--gold);
+    opacity: 0.25;
+    line-height: 1;
+    margin-bottom: -1rem;
+  }
+
+  .step h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+
+  .step p { font-size: 0.95rem; line-height: 1.8; opacity: 0.7; }
+
+  .step-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1.5rem;
+    color: var(--rust);
+  }
+
+  /* charities */
+  .charities-home {
+    padding: 7rem 5rem;
+    background: var(--warm);
+  }
+
+  .charities-home h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 900;
+    max-width: 600px;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+  }
+
+  .charities-home h2 em { font-style: italic; color: var(--rust); }
+
+  .charity-intro {
+    font-size: 1rem;
+    line-height: 1.8;
+    max-width: 500px;
+    opacity: 0.7;
+    margin-bottom: 4rem;
+  }
+
+  .charity-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+
+  .charity-card {
+    border: 1px solid rgba(13,10,6,0.15);
+    padding: 2rem;
+    border-radius: 4px;
+    background: var(--paper);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .charity-card:hover {
+    border-color: var(--rust);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(196,65,12,0.1);
+  }
+
+  .charity-emoji { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+
+  .charity-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .charity-desc { font-size: 0.82rem; line-height: 1.6; opacity: 0.65; }
+
+  /* home cta */
+  .cta-section {
+    padding: 9rem 5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: 'ARTGIVES';
+    font-family: 'Playfair Display', serif;
+    font-size: 28vw;
+    font-weight: 900;
+    color: rgba(196,65,12,0.04);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .cta-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-section p {
+    font-size: 1.1rem;
+    line-height: 1.75;
+    opacity: 0.65;
+    max-width: 450px;
+    margin: 0 auto 3rem;
+  }
+
+  /* ══════════════════════════════════
+     PAGE: GALLERY
+  ══════════════════════════════════ */
+
+  .gallery-page {
+    padding: 4rem 5rem 6rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .gallery-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+  }
+
+  .gallery-page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .gallery-page-header h1 em { color: var(--rust); font-style: italic; }
+
+  .gallery-filters {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.5rem 1.2rem;
+    border: 1px solid rgba(13,10,6,0.2);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .gallery-masonry {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .gallery-item {
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid rgba(13,10,6,0.08);
+    position: relative;
+  }
+
+  .gallery-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 48px rgba(13,10,6,0.12);
+  }
+
+  .gallery-item:nth-child(3n+1) .gallery-item-img { aspect-ratio: 3/4; }
+  .gallery-item:nth-child(3n+2) .gallery-item-img { aspect-ratio: 1; }
+  .gallery-item:nth-child(3n+3) .gallery-item-img { aspect-ratio: 4/3; }
+
+  .gallery-item-img {
+    width: 100%;
+    display: block;
+    background: var(--warm);
+    position: relative;
+  }
+
+  .gallery-item-img canvas { width: 100%; height: 100%; display: block; }
+
+  .gallery-item-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background: var(--sage);
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+    z-index: 2;
+  }
+
+  .gallery-item-info { padding: 1.2rem; }
+
+  .gallery-item-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-style: italic;
+    margin-bottom: 0.3rem;
+  }
+
+  .gallery-item-artist {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    opacity: 0.5;
+    margin-bottom: 0.6rem;
+  }
+
+  .gallery-item-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .gallery-item-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--rust);
+  }
+
+  .gallery-item-charity-sm {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    opacity: 0.45;
+    letter-spacing: 0.05em;
+  }
+
+  /* empty state */
+  .gallery-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 6rem 2rem;
+  }
+
+  .gallery-empty h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-style: italic;
+    margin-bottom: 1rem;
+    opacity: 0.4;
+  }
+
+  .gallery-empty p {
+    font-size: 0.95rem;
+    opacity: 0.4;
+    margin-bottom: 2rem;
+  }
+
+  /* ══════════════════════════════════
+     PAGE: SUBMIT / ARTIST UPLOAD
+  ══════════════════════════════════ */
+
+  .submit-page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 4rem 3rem 6rem;
+  }
+
+  .submit-page h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 0.75rem;
+  }
+
+  .submit-page h1 em { color: var(--rust); font-style: italic; }
+
+  .submit-intro {
+    font-size: 1rem;
+    line-height: 1.75;
+    opacity: 0.6;
+    max-width: 560px;
+    margin-bottom: 3.5rem;
+  }
+
+  .form-section {
+    margin-bottom: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(13,10,6,0.1);
+  }
+
+  .form-section:last-of-type { border-bottom: none; }
+
+  .form-section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 1.5rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-row.full { grid-template-columns: 1fr; }
+
+  .form-group { display: flex; flex-direction: column; }
+
+  .form-group label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    opacity: 0.6;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 0.95rem;
+    padding: 0.8rem 1rem;
+    border: 1.5px solid rgba(13,10,6,0.18);
+    background: white;
+    color: var(--ink);
+    border-radius: 3px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--rust);
+  }
+
+  .form-group textarea { resize: vertical; min-height: 100px; }
+
+  .form-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230d0a06' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+  }
+
+  /* Image upload zone */
+  .upload-zone {
+    border: 2px dashed rgba(13,10,6,0.2);
+    border-radius: 6px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--rust);
+    background: rgba(196,65,12,0.03);
+  }
+
+  .upload-zone.has-file {
+    border-style: solid;
+    border-color: var(--sage);
+    background: rgba(74,103,65,0.04);
+    padding: 1.5rem;
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .upload-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1rem;
+    color: var(--rust);
+    opacity: 0.5;
+  }
+
+  .upload-zone h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .upload-zone p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    opacity: 0.45;
+  }
+
+  .upload-preview {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    text-align: left;
+  }
+
+  .upload-preview img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid rgba(13,10,6,0.1);
+  }
+
+  .upload-preview-info h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .upload-preview-info p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    opacity: 0.5;
+    margin-bottom: 0.6rem;
+  }
+
+  .upload-remove {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rust);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  /* price input */
+  .price-wrapper {
+    position: relative;
+  }
+
+  .price-wrapper::before {
+    content: '$';
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    opacity: 0.4;
+  }
+
+  .price-wrapper input { padding-left: 2rem; }
+
+  /* charity selector */
+  .charity-select-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .charity-option {
+    border: 1.5px solid rgba(13,10,6,0.15);
+    border-radius: 4px;
+    padding: 1.2rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: white;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .charity-option:hover { border-color: var(--rust); }
+
+  .charity-option.selected {
+    border-color: var(--rust);
+    background: rgba(196,65,12,0.04);
+    box-shadow: 0 0 0 1px var(--rust);
+  }
+
+  .charity-option-radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(13,10,6,0.2);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .charity-option.selected .charity-option-radio {
+    border-color: var(--rust);
+    background: var(--rust);
+  }
+
+  .charity-option.selected .charity-option-radio::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: white;
+  }
+
+  .charity-option-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .charity-option-desc {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    opacity: 0.55;
+  }
+
+  /* form actions */
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 2rem;
+  }
+
+  .form-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    opacity: 0.4;
+    margin-left: 1rem;
+  }
+
+  /* success message */
+  .submit-success {
+    text-align: center;
+    padding: 6rem 2rem;
+    display: none;
+  }
+
+  .submit-success.show { display: block; animation: fadeUp 0.6s ease; }
+
+  .success-check {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--sage);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 2rem;
+  }
+
+  .submit-success h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+  }
+
+  .submit-success p {
+    font-size: 1rem;
+    line-height: 1.75;
+    opacity: 0.6;
+    max-width: 450px;
+    margin: 0 auto 2.5rem;
+  }
+
+  /* ══════════════════════════════════
+     PAGE: ARTWORK DETAIL
+  ══════════════════════════════════ */
+
+  .detail-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 5rem 6rem;
+  }
+
+  .detail-back {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    opacity: 0.5;
+    cursor: pointer;
+    text-decoration: none;
+    margin-bottom: 2.5rem;
+    display: inline-block;
+    transition: opacity 0.2s;
+  }
+
+  .detail-back:hover { opacity: 1; }
+
+  .detail-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .detail-image {
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(13,10,6,0.08);
+  }
+
+  .detail-image canvas, .detail-image img {
+    width: 100%;
+    display: block;
+  }
+
+  .detail-info { padding-top: 1rem; }
+
+  .detail-info h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    line-height: 1.15;
+  }
+
+  .detail-artist {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    opacity: 0.5;
+    margin-bottom: 2rem;
+  }
+
+  .detail-price-block {
+    background: var(--warm);
+    padding: 1.5rem;
+    border-radius: 4px;
+    margin-bottom: 2rem;
+  }
+
+  .detail-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--rust);
+    margin-bottom: 0.3rem;
+  }
+
+  .detail-price-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  .detail-charity-banner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 1.5rem;
+    background: rgba(74,103,65,0.08);
+    border: 1px solid rgba(74,103,65,0.2);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+  }
+
+  .detail-charity-banner span:first-child { font-size: 1.5rem; }
+
+  .detail-charity-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sage);
+    display: block;
+  }
+
+  .detail-charity-name-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .detail-description {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    opacity: 0.7;
+    margin-bottom: 2.5rem;
+  }
+
+  .detail-enquire-btn {
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+    padding: 1.2rem;
+  }
+
+  /* enquire modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(13,10,6,0.6);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.show { display: flex; animation: fadeIn 0.25s ease; }
+
+  .modal {
+    background: var(--paper);
+    padding: 3rem;
+    border-radius: 6px;
+    max-width: 520px;
+    width: 90%;
+    position: relative;
+    animation: slideUp 0.35s ease;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+
+  .modal-close:hover { opacity: 1; }
+
+  .modal h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal .modal-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    opacity: 0.45;
+    margin-bottom: 2rem;
+    display: block;
+  }
+
+  .modal .form-group { margin-bottom: 1.2rem; }
+
+  .modal-sent {
+    text-align: center;
+    padding: 2rem 0;
+    display: none;
+  }
+
+  .modal-sent.show { display: block; }
+
+  .modal-sent h3 {
+    color: var(--sage);
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── ABOUT PAGE ── */
+  .about-page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 5rem 3rem 6rem;
+  }
+
+  .about-page h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 3rem;
+  }
+
+  .about-page h1 em { color: var(--rust); font-style: italic; }
+
+  .about-manifesto {
+    font-size: 1.2rem;
+    line-height: 1.9;
+    margin-bottom: 3rem;
+    max-width: 640px;
+  }
+
+  .about-manifesto strong { color: var(--rust); }
+
+  .about-values {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    margin-top: 4rem;
+  }
+
+  .about-value h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .about-value p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    opacity: 0.6;
+  }
+
+  .about-ack {
+    margin-top: 4rem;
+    padding-top: 3rem;
+    border-top: 1px solid rgba(13,10,6,0.12);
+    font-size: 0.85rem;
+    line-height: 1.7;
+    opacity: 0.5;
+    font-style: italic;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 3rem 5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 3px solid var(--rust);
+  }
+
+  .footer-word {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 900;
+  }
+
+  .footer-word span { color: var(--rust); }
+
+  .footer-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    opacity: 0.4;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    header { padding: 1.2rem 1.5rem; }
+    nav { gap: 1.2rem; }
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-text { padding: 4rem 2rem; }
+    .hero-canvas { height: 50vh; }
+    .stat-strip { flex-wrap: wrap; gap: 2rem; padding: 2rem; }
+    .steps { grid-template-columns: 1fr; gap: 3rem; }
+    .how { padding: 5rem 2rem; }
+    .charity-grid { grid-template-columns: 1fr 1fr; }
+    .charities-home { padding: 5rem 2rem; }
+    .gallery-page { padding: 3rem 1.5rem; }
+    .gallery-masonry { grid-template-columns: 1fr 1fr; }
+    .detail-layout { grid-template-columns: 1fr; gap: 2rem; }
+    .detail-page { padding: 2rem 1.5rem; }
+    .submit-page { padding: 3rem 1.5rem; }
+    .form-row { grid-template-columns: 1fr; }
+    .charity-select-grid { grid-template-columns: 1fr; }
+    .about-values { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
+  }
+
+  @media (max-width: 600px) {
+    nav a:not(.nav-cta) { display: none; }
+    .gallery-masonry { grid-template-columns: 1fr; }
+    .charity-grid { grid-template-columns: 1fr; }
+    .stat-strip { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HIDDEN NETLIFY FORMS (detected at deploy time — DO NOT REMOVE) -->
+<form name="artwork-submission" netlify netlify-honeypot="bot-field" hidden>
+  <input name="bot-field">
+  <input name="artwork-title">
+  <input name="medium">
+  <input name="description">
+  <input name="price-aud">
+  <input name="dimensions">
+  <input name="artist-name">
+  <input name="artist-email">
+  <input name="artist-bio">
+  <input name="charity">
+</form>
+
+<form name="purchase-enquiry" netlify netlify-honeypot="bot-field" hidden>
+  <input name="bot-field">
+  <input name="enquiry-name">
+  <input name="enquiry-email">
+  <input name="enquiry-message">
+  <input name="artwork-title">
+  <input name="artwork-artist">
+  <input name="artwork-price">
+</form>
+
+<!-- HEADER -->
+<header>
+  <a class="wordmark" onclick="navigate('home')">ART<span>GIVES</span></a>
+  <nav>
+    <a onclick="navigate('gallery')" data-nav="gallery">Gallery</a>
+    <a onclick="navigate('about')" data-nav="about">About</a>
+    <a onclick="navigate('causes')" data-nav="causes">Causes</a>
+    <a class="nav-cta" onclick="navigate('submit')">Submit Your Art</a>
+  </nav>
+</header>
+
+<!-- ═══════════════════════════════════════
+     PAGE: HOME
+═══════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span>100% to charity</span><span>✦</span>
+      <span>Every sale gives back</span><span>✦</span>
+      <span>Art that acts</span><span>✦</span>
+      <span>Create with purpose</span><span>✦</span>
+      <span>Buy to give</span><span>✦</span>
+      <span>100% to charity</span><span>✦</span>
+      <span>Every sale gives back</span><span>✦</span>
+      <span>Art that acts</span><span>✦</span>
+      <span>Create with purpose</span><span>✦</span>
+      <span>Buy to give</span><span>✦</span>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text">
+      <p class="hero-eyebrow">A marketplace for meaningful art</p>
+      <h1>Where <em>every</em> brushstroke feeds the world</h1>
+      <p class="hero-sub">Create original art. Find something beautiful. Every purchase — 100% of the proceeds — goes directly to charity. Art that earns its place in the world.</p>
+      <div class="hero-actions">
+        <a class="btn-primary" onclick="navigate('submit')">Upload Your Work</a>
+        <a class="btn-secondary" onclick="navigate('gallery')">Browse the Gallery</a>
+      </div>
+    </div>
+    <div class="hero-canvas">
+      <canvas id="heroCanvas"></canvas>
+      <p class="canvas-caption">Live generative preview — art in motion</p>
+    </div>
+  </section>
+
+  <!-- STAT STRIP -->
+  <div class="stat-strip">
+    <div class="stat"><div class="stat-num" id="statDonated">$0</div><div class="stat-label">Donated to date</div></div>
+    <div class="stat"><div class="stat-num" id="statWorks">0</div><div class="stat-label">Works listed</div></div>
+    <div class="stat"><div class="stat-num" id="statArtists">0</div><div class="stat-label">Artists</div></div>
+    <div class="stat"><div class="stat-num">100%</div><div class="stat-label">To charity, always</div></div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="how fade-in">
+    <div class="section-label">How it works</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <svg class="step-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M8 40L14 28l8 8L36 12l4 28"/>
+          <circle cx="36" cy="10" r="3" fill="currentColor" stroke="none"/>
+        </svg>
+        <h3>Create & Upload</h3>
+        <p>Share your paintings, photography, illustrations, or digital work. Set a price. Choose a cause. Every medium welcome.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <svg class="step-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="8" y="12" width="32" height="28" rx="2"/>
+          <path d="M16 12V8M32 12V8M8 22h32"/>
+          <path d="M18 32l4 4 8-8" stroke-linecap="round"/>
+        </svg>
+        <h3>Someone Falls in Love</h3>
+        <p>Collectors browse and find work that speaks to them. They enquire, connect with the artist, and purchase — knowing every cent goes to charity.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <svg class="step-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M24 6C14 6 7 15 7 24s7 18 17 18 17-9 17-18-7-18-17-18z"/>
+          <path d="M24 16v8l6 4" stroke-linecap="round"/>
+        </svg>
+        <h3>Charity Receives</h3>
+        <p>100% of sale proceeds go to the verified Australian charity the artist chose. Transparent. Traceable. Real impact.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHARITIES -->
+  <section class="charities-home fade-in">
+    <div class="section-label">Benefiting</div>
+    <h2>Your art funds <em>real</em> change</h2>
+    <p class="charity-intro">Artists choose which cause their work supports. Collectors know exactly where their money goes. Every transaction is transparent.</p>
+    <div class="charity-grid">
+      <div class="charity-card">
+        <span class="charity-emoji">📖</span>
+        <div class="charity-name">Indigenous Literacy Foundation</div>
+        <div class="charity-desc">Getting books and literacy resources to children in remote Indigenous communities across Australia.</div>
+      </div>
+      <div class="charity-card">
+        <span class="charity-emoji">🌿</span>
+        <div class="charity-name">Australian Conservation Foundation</div>
+        <div class="charity-desc">Fighting for a healthy environment — protecting land, water, and wildlife for all Australians.</div>
+      </div>
+      <div class="charity-card">
+        <span class="charity-emoji">🏠</span>
+        <div class="charity-name">Homes for Homes</div>
+        <div class="charity-desc">Raising funds for social and affordable housing through voluntary property sale donations.</div>
+      </div>
+      <div class="charity-card">
+        <span class="charity-emoji">🤝</span>
+        <div class="charity-name">Beyond Blue</div>
+        <div class="charity-desc">Supporting Australians affected by anxiety, depression, and suicide through research and connection.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section fade-in">
+    <h2>Your art has never been worth more</h2>
+    <p>Join artists turning creative work into real-world impact. No platform fees. No middlemen. Just art doing good.</p>
+    <a class="btn-primary" style="font-size:0.85rem; padding:1.2rem 3rem;" onclick="navigate('submit')">Create your first listing</a>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE: GALLERY
+═══════════════════════════════════════ -->
+<div class="page" id="page-gallery">
+  <div class="gallery-page">
+    <div class="gallery-page-header">
+      <h1>Browse <em>works</em></h1>
+    </div>
+    <div class="gallery-filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="painting">Painting</button>
+      <button class="filter-btn" data-filter="photography">Photography</button>
+      <button class="filter-btn" data-filter="illustration">Illustration</button>
+      <button class="filter-btn" data-filter="digital">Digital</button>
+    </div>
+    <div class="gallery-masonry" id="galleryGrid">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE: SUBMIT
+═══════════════════════════════════════ -->
+<div class="page" id="page-submit">
+  <div class="submit-page">
+    <div id="submitForm">
+      <div class="section-label">For artists</div>
+      <h1>List your <em>work</em></h1>
+      <p class="submit-intro">Upload your art, set a price, and choose an Australian charity. 100% of the sale goes directly to the cause you believe in.</p>
+
+      <!-- Section: artwork image -->
+      <div class="form-section">
+        <div class="form-section-title">Your artwork</div>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="artworkFile" accept="image/*">
+          <div id="uploadPlaceholder">
+            <svg class="upload-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="6" y="10" width="36" height="28" rx="3"/>
+              <path d="M6 32l10-10 8 8 6-6 12 12" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="16" cy="20" r="3"/>
+            </svg>
+            <h4>Drop your artwork here</h4>
+            <p>PNG, JPG, or WEBP up to 25MB</p>
+          </div>
+          <div id="uploadPreview" class="upload-preview" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Section: details -->
+      <div class="form-section">
+        <div class="form-section-title">Artwork details</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="artTitle">Title</label>
+            <input type="text" id="artTitle" placeholder="e.g. Tidal Forms No. 7">
+          </div>
+          <div class="form-group">
+            <label for="artMedium">Medium</label>
+            <select id="artMedium">
+              <option value="">Select medium...</option>
+              <option value="painting">Painting</option>
+              <option value="photography">Photography</option>
+              <option value="illustration">Illustration</option>
+              <option value="digital">Digital Art</option>
+              <option value="mixed">Mixed Media</option>
+              <option value="sculpture">Sculpture</option>
+              <option value="textile">Textile / Fibre</option>
+              <option value="print">Print</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label for="artDesc">Description (optional)</label>
+            <textarea id="artDesc" placeholder="Tell the story of this work — what inspired it, what it means to you..."></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="artPrice">Price (AUD)</label>
+            <div class="price-wrapper">
+              <input type="number" id="artPrice" placeholder="150" min="1">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="artDimensions">Dimensions (optional)</label>
+            <input type="text" id="artDimensions" placeholder="e.g. 60 × 80 cm">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: artist -->
+      <div class="form-section">
+        <div class="form-section-title">About you</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="artistName">Your name</label>
+            <input type="text" id="artistName" placeholder="Full name or artist name">
+          </div>
+          <div class="form-group">
+            <label for="artistEmail">Email</label>
+            <input type="email" id="artistEmail" placeholder="you@example.com">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label for="artistBio">Short bio (optional)</label>
+            <textarea id="artistBio" rows="3" placeholder="A few words about you and your practice..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: charity -->
+      <div class="form-section">
+        <div class="form-section-title">Choose a cause</div>
+        <p style="font-size:0.9rem; opacity:0.6; margin-bottom:1.5rem;">100% of the sale price goes to the charity you select.</p>
+        <div class="charity-select-grid" id="charitySelector">
+          <div class="charity-option" data-charity="Indigenous Literacy Foundation" onclick="selectCharity(this)">
+            <div class="charity-option-radio"></div>
+            <div>
+              <div class="charity-option-name">📖 Indigenous Literacy Foundation</div>
+              <div class="charity-option-desc">Books and literacy resources for children in remote Indigenous communities.</div>
+            </div>
+          </div>
+          <div class="charity-option" data-charity="Australian Conservation Foundation" onclick="selectCharity(this)">
+            <div class="charity-option-radio"></div>
+            <div>
+              <div class="charity-option-name">🌿 Australian Conservation Foundation</div>
+              <div class="charity-option-desc">Protecting Australia's land, water, and wildlife.</div>
+            </div>
+          </div>
+          <div class="charity-option" data-charity="Homes for Homes" onclick="selectCharity(this)">
+            <div class="charity-option-radio"></div>
+            <div>
+              <div class="charity-option-name">🏠 Homes for Homes</div>
+              <div class="charity-option-desc">Funding social and affordable housing across Australia.</div>
+            </div>
+          </div>
+          <div class="charity-option" data-charity="Beyond Blue" onclick="selectCharity(this)">
+            <div class="charity-option-radio"></div>
+            <div>
+              <div class="charity-option-name">🤝 Beyond Blue</div>
+              <div class="charity-option-desc">Supporting Australians affected by anxiety, depression, and suicide.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" id="submitBtn" onclick="handleSubmit()">Submit Listing</button>
+        <span class="form-note">Your listing will be reviewed before going live</span>
+      </div>
+    </div>
+
+    <!-- Success state -->
+    <div class="submit-success" id="submitSuccess">
+      <div class="success-check">✓</div>
+      <h2>Listed!</h2>
+      <p>Your artwork has been submitted. It'll appear in the gallery once reviewed. We'll email you when it's live.</p>
+      <div style="display:flex; gap:1rem; justify-content:center;">
+        <button class="btn-primary" onclick="resetForm()">Submit another</button>
+        <button class="btn-secondary" onclick="navigate('gallery')">View gallery</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE: ARTWORK DETAIL
+═══════════════════════════════════════ -->
+<div class="page" id="page-detail">
+  <div class="detail-page">
+    <a class="detail-back" onclick="navigate('gallery')">← Back to gallery</a>
+    <div class="detail-layout">
+      <div class="detail-image" id="detailImage"></div>
+      <div class="detail-info">
+        <h1 id="detailTitle"></h1>
+        <div class="detail-artist" id="detailArtist"></div>
+        <div class="detail-price-block">
+          <div class="detail-price" id="detailPrice"></div>
+          <div class="detail-price-note">100% goes to charity</div>
+        </div>
+        <div class="detail-charity-banner">
+          <span id="detailCharityEmoji"></span>
+          <div>
+            <span class="detail-charity-label">All proceeds benefit</span>
+            <span class="detail-charity-name-text" id="detailCharity"></span>
+          </div>
+        </div>
+        <p class="detail-description" id="detailDesc"></p>
+        <button class="btn-primary detail-enquire-btn" onclick="openEnquiry()">Enquire to Purchase</button>
+        <p style="font-family:'DM Mono',monospace; font-size:0.58rem; letter-spacing:0.06em; opacity:0.35; margin-top:0.8rem; text-align:center;">We'll connect you with the artist to arrange purchase and delivery</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE: ABOUT
+═══════════════════════════════════════ -->
+<div class="page" id="page-about">
+  <div class="about-page">
+    <div class="section-label">About</div>
+    <h1>Art should <em>give</em> more than it takes</h1>
+    <p class="about-manifesto">
+      ARTGIVES is a platform where artists create and sell original work — and <strong>100% of the sale price goes directly to charity</strong>. No platform fees. No commissions. No middlemen.
+    </p>
+    <p class="about-manifesto">
+      We believe art generates more than aesthetic value. It creates social value, relational value, and when channelled through purpose — real material change. ARTGIVES is a space for artists who want their creative practice to mean something beyond the frame.
+    </p>
+    <p class="about-manifesto">
+      Every charity on our platform is an Australian organisation doing vital work — from Indigenous literacy to conservation, from housing to mental health. Artists choose their cause. Buyers know exactly where their money goes.
+    </p>
+
+    <div class="about-values">
+      <div class="about-value">
+        <h3>Radical transparency</h3>
+        <p>Every transaction is traceable. You can see where your money went, which charity received it, and when.</p>
+      </div>
+      <div class="about-value">
+        <h3>Artist-led</h3>
+        <p>Artists set their own prices and choose their own causes. We provide the platform; they provide the purpose.</p>
+      </div>
+      <div class="about-value">
+        <h3>100%, always</h3>
+        <p>Not 80%. Not 90%. The full sale price goes to charity. ARTGIVES operates through separate funding, not artist revenue.</p>
+      </div>
+      <div class="about-value">
+        <h3>Community-centred</h3>
+        <p>Built on community-engaged design principles. This platform exists because of, and for, the communities it serves.</p>
+      </div>
+    </div>
+
+    <p class="about-ack">ARTGIVES acknowledges the Traditional Owners of the lands on which we work and create. We acknowledge that sovereignty was never ceded, and pay our respects to Elders past, present, and emerging.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE: CAUSES (redirect to charities)
+═══════════════════════════════════════ -->
+<div class="page" id="page-causes">
+  <div class="about-page">
+    <div class="section-label">Our partner charities</div>
+    <h1>Where your <em>art</em> goes to work</h1>
+    <p class="about-manifesto" style="margin-bottom:4rem;">
+      Every charity on ARTGIVES is an Australian organisation doing vital, verified work. Artists select their cause at listing time. Buyers see exactly which charity benefits.
+    </p>
+    <div class="charity-grid" style="max-width:100%;">
+      <div class="charity-card">
+        <span class="charity-emoji">📖</span>
+        <div class="charity-name">Indigenous Literacy Foundation</div>
+        <div class="charity-desc">Getting books and literacy resources to children in remote Indigenous communities across Australia. Since 2011, ILF has distributed over 350,000 books to communities in need.</div>
+      </div>
+      <div class="charity-card">
+        <span class="charity-emoji">🌿</span>
+        <div class="charity-name">Australian Conservation Foundation</div>
+        <div class="charity-desc">Australia's national environment organisation — protecting land, water, wildlife and climate through advocacy, campaigns, and community action since 1966.</div>
+      </div>
+      <div class="charity-card">
+        <span class="charity-emoji">🏠</span>
+        <div class="charity-name">Homes for Homes</div>
+        <div class="charity-desc">An innovative model that channels voluntary property sale donations into social and affordable housing. Addressing Australia's housing crisis through systemic change.</div>
+      </div>
+      <div class="charity-card">
+        <span class="charity-emoji">🤝</span>
+        <div class="charity-name">Beyond Blue</div>
+        <div class="charity-desc">Supporting all Australians affected by anxiety, depression and suicide. Providing information, support services, and funding vital research into mental health.</div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:4rem;">
+      <p style="font-size:0.95rem; opacity:0.5; margin-bottom:1.5rem;">Want to see your organisation listed?</p>
+      <a class="btn-secondary" href="mailto:hello@artgives.org">Get in touch</a>
+    </div>
+  </div>
+</div>
+
+<!-- ENQUIRY MODAL -->
+<div class="modal-overlay" id="enquiryModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeEnquiry()">×</button>
+    <div id="enquiryForm">
+      <h3>Enquire about this work</h3>
+      <span class="modal-sub" id="enquiryWorkTitle"></span>
+      <div class="form-group">
+        <label>Your name</label>
+        <input type="text" id="enquiryName" placeholder="Full name">
+      </div>
+      <div class="form-group">
+        <label>Your email</label>
+        <input type="email" id="enquiryEmail" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label>Message (optional)</label>
+        <textarea id="enquiryMessage" rows="3" placeholder="I'd love to purchase this work..."></textarea>
+      </div>
+      <button class="btn-primary" style="width:100%; text-align:center; margin-top:1rem;" onclick="sendEnquiry()">Send Enquiry</button>
+    </div>
+    <div class="modal-sent" id="enquirySent">
+      <h3>Enquiry sent!</h3>
+      <p style="opacity:0.6; font-size:0.9rem; margin-top:0.5rem;">We'll connect you with the artist shortly.</p>
+      <button class="btn-secondary" style="margin-top:1.5rem;" onclick="closeEnquiry()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-word">ART<span>GIVES</span></div>
+  <div class="footer-note">All proceeds donated. Always. © 2025 ArtGives.</div>
+  <div class="footer-note" style="font-size:0.55rem; opacity:0.3;">Made with purpose in Melbourne</div>
+</footer>
+
+<script>
+// ══════════════════════════════════
+// DATA STORE (in-memory, replaces backend)
+// ══════════════════════════════════
+
+const CHARITIES = [
+  { name: 'Indigenous Literacy Foundation', emoji: '📖' },
+  { name: 'Australian Conservation Foundation', emoji: '🌿' },
+  { name: 'Homes for Homes', emoji: '🏠' },
+  { name: 'Beyond Blue', emoji: '🤝' },
+];
+
+// Seed gallery with sample works
+let artworks = [
+  { id: 1, title: 'Tidal Forms No. 7', artist: 'Lina Vasquez', medium: 'painting', price: 240, charity: 'Indigenous Literacy Foundation', desc: 'An exploration of coastal rhythms in ochre and ultramarine. Painted during a residency in the Kimberley, this work captures the pulse of tidal movement through layered brushwork.', seed: 101 },
+  { id: 2, title: 'Migration', artist: 'Sam Okereke', medium: 'digital', price: 120, charity: 'Beyond Blue', desc: 'A digital meditation on movement, belonging, and the spaces between home and here.', seed: 202 },
+  { id: 3, title: 'Canopy Study', artist: 'Jess Nguyen', medium: 'photography', price: 95, charity: 'Australian Conservation Foundation', desc: 'Shot looking directly up through old-growth canopy in the Otways. A reminder of what we stand to lose.', seed: 303 },
+  { id: 4, title: 'Red Crossing', artist: 'Tomas Hale', medium: 'painting', price: 180, charity: 'Homes for Homes', desc: 'Bold geometric forms in cadmium and crimson. The intersection of structure and chaos.', seed: 404 },
+  { id: 5, title: 'Bloom Season', artist: 'Aria Chen', medium: 'illustration', price: 75, charity: 'Indigenous Literacy Foundation', desc: 'Ink and watercolour illustration of native wildflowers in spring. Part of an ongoing series documenting seasonal change.', seed: 505 },
+  { id: 6, title: 'Still Water', artist: 'Mika Tennant', medium: 'photography', price: 160, charity: 'Australian Conservation Foundation', desc: 'Dawn light on the Murray River. Reflections that feel more real than the thing itself.', seed: 606 },
+  { id: 7, title: 'Untitled (Rust)', artist: 'Nina Park', medium: 'painting', price: 310, charity: 'Beyond Blue', desc: 'Raw expression in iron oxide and gesso on unstretched canvas. Made during a period of deep change.', seed: 707 },
+  { id: 8, title: 'Grid Theory', artist: 'Jay Morales', medium: 'digital', price: 55, charity: 'Homes for Homes', desc: 'Algorithmic composition exploring urban density and negative space. Generated, then hand-edited.', seed: 808 },
+  { id: 9, title: 'Thread Lines', artist: 'Bea Whitfield', medium: 'illustration', price: 130, charity: 'Indigenous Literacy Foundation', desc: 'Fine-line ink drawing inspired by songlines and the way stories travel through landscape.', seed: 909 },
+];
+
+let nextId = 10;
+let currentDetailId = null;
+let selectedCharity = null;
+let uploadedImage = null;
+
+// ══════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav a[data-nav]').forEach(a => a.classList.remove('active'));
+
+  const target = document.getElementById('page-' + page);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  const navLink = document.querySelector(`nav a[data-nav="${page}"]`);
+  if (navLink) navLink.classList.add('active');
+
+  if (page === 'gallery') renderGallery();
+  if (page === 'home') {
+    updateStats();
+    initHeroCanvas();
+  }
+
+  // Re-observe fade-ins
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+// ══════════════════════════════════
+// STATS
+// ══════════════════════════════════
+
+function updateStats() {
+  const totalValue = artworks.reduce((sum, a) => sum + a.price, 0);
+  const uniqueArtists = new Set(artworks.map(a => a.artist)).size;
+  animateNumber('statDonated', totalValue, true);
+  animateNumber('statWorks', artworks.length, false);
+  animateNumber('statArtists', uniqueArtists, false);
+}
+
+function animateNumber(id, target, isCurrency) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let current = 0;
+  const step = Math.max(1, Math.floor(target / 40));
+  const interval = setInterval(() => {
+    current += step;
+    if (current >= target) {
+      current = target;
+      clearInterval(interval);
+    }
+    el.textContent = isCurrency
+      ? '$' + current.toLocaleString()
+      : current.toLocaleString();
+  }, 30);
+}
+
+// ══════════════════════════════════
+// GENERATIVE ART RENDERER
+// ══════════════════════════════════
+
+function seededRandom(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 16807 + 0) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+const artPalettes = [
+  ['#c4410c', '#d4a843', '#4a6741', '#f5f0e8', '#8b4a2c'],
+  ['#2c4a8b', '#6aa3c4', '#d4c87a', '#f0ebe0', '#1a2a4a'],
+  ['#4a6741', '#a8c870', '#f5f0e8', '#2c3820', '#8bab5e'],
+  ['#8b2020', '#cc4400', '#f0c060', '#faf3e8', '#5a1010'],
+  ['#5b3fa0', '#9070c0', '#d5c0e8', '#f5f0f8', '#3a2060'],
+  ['#1a4a4a', '#2a8080', '#60c0b0', '#f0f5f0', '#0a2a2a'],
+  ['#8b6040', '#c09060', '#e0c890', '#faf5e8', '#5a3a20'],
+];
+
+function drawGenerativeArt(canvas, seed, width, height) {
+  canvas.width = width || 400;
+  canvas.height = height || 400;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  const rng = seededRandom(seed);
+  const pal = artPalettes[Math.floor(rng() * artPalettes.length)];
+
+  // background
+  ctx.fillStyle = pal[3];
+  ctx.fillRect(0, 0, w, h);
+
+  // large soft shapes
+  for (let i = 0; i < 4 + Math.floor(rng() * 4); i++) {
+    const gx = rng() * w, gy = rng() * h;
+    const gr = rng() * Math.min(w,h) * 0.45 + 40;
+    const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, gr);
+    grad.addColorStop(0, pal[Math.floor(rng() * 3)] + 'bb');
+    grad.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(gx, gy, gr, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  // hatching
+  ctx.save();
+  ctx.globalAlpha = 0.06 + rng() * 0.06;
+  ctx.strokeStyle = pal[Math.floor(rng() * 3)];
+  ctx.lineWidth = 0.6;
+  const angle = rng() * Math.PI;
+  for (let i = -w; i < w + h; i += 8 + Math.floor(rng() * 6)) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i + Math.cos(angle) * h * 1.5, h);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // bold strokes
+  for (let s = 0; s < 5 + Math.floor(rng() * 6); s++) {
+    ctx.beginPath();
+    ctx.moveTo(rng() * w, rng() * h);
+    ctx.quadraticCurveTo(rng() * w, rng() * h, rng() * w, rng() * h);
+    ctx.strokeStyle = pal[Math.floor(rng() * 4)];
+    ctx.lineWidth = rng() * 5 + 1;
+    ctx.globalAlpha = rng() * 0.5 + 0.15;
+    ctx.stroke();
+  }
+
+  // some geometric accents
+  ctx.globalAlpha = 0.1 + rng() * 0.1;
+  for (let g = 0; g < 3; g++) {
+    const cx = rng() * w, cy = rng() * h, sz = rng() * 80 + 20;
+    ctx.strokeStyle = pal[Math.floor(rng() * 3)];
+    ctx.lineWidth = 1.2;
+    if (rng() > 0.5) {
+      ctx.strokeRect(cx - sz/2, cy - sz/2, sz, sz);
+    } else {
+      ctx.beginPath();
+      ctx.arc(cx, cy, sz/2, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+// ══════════════════════════════════
+// GALLERY RENDERER
+// ══════════════════════════════════
+
+function renderGallery(filter) {
+  const grid = document.getElementById('galleryGrid');
+  if (!grid) return;
+
+  let items = [...artworks];
+  if (filter && filter !== 'all') {
+    items = items.filter(a => a.medium === filter);
+  }
+
+  if (items.length === 0) {
+    grid.innerHTML = `
+      <div class="gallery-empty">
+        <h3>No works yet</h3>
+        <p>Be the first to list something beautiful.</p>
+        <button class="btn-primary" onclick="navigate('submit')">Submit your art</button>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = '';
+  items.forEach(art => {
+    const charityInfo = CHARITIES.find(c => c.name === art.charity) || { emoji: '❤️' };
+    const card = document.createElement('div');
+    card.className = 'gallery-item';
+    card.onclick = () => openDetail(art.id);
+
+    const imgDiv = document.createElement('div');
+    imgDiv.className = 'gallery-item-img';
+
+    if (art.imageData) {
+      const img = document.createElement('img');
+      img.src = art.imageData;
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.display = 'block';
+      imgDiv.appendChild(img);
+    } else {
+      const c = document.createElement('canvas');
+      imgDiv.appendChild(c);
+      const isFirst = items.indexOf(art) === 0;
+      drawGenerativeArt(c, art.seed, 400, isFirst ? 500 : 400);
+    }
+
+    const badge = document.createElement('div');
+    badge.className = 'gallery-item-badge';
+    badge.textContent = art.charity;
+
+    const info = document.createElement('div');
+    info.className = 'gallery-item-info';
+    info.innerHTML = `
+      <div class="gallery-item-title">"${art.title}"</div>
+      <div class="gallery-item-artist">${art.artist}</div>
+      <div class="gallery-item-bottom">
+        <span class="gallery-item-price">$${art.price} AUD</span>
+        <span class="gallery-item-charity-sm">${charityInfo.emoji} 100% donated</span>
+      </div>`;
+
+    card.appendChild(imgDiv);
+    card.appendChild(badge);
+    card.appendChild(info);
+    grid.appendChild(card);
+  });
+}
+
+// Gallery filters
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderGallery(btn.dataset.filter);
+  });
+});
+
+// ══════════════════════════════════
+// ARTWORK DETAIL
+// ══════════════════════════════════
+
+function openDetail(id) {
+  const art = artworks.find(a => a.id === id);
+  if (!art) return;
+  currentDetailId = id;
+  const charityInfo = CHARITIES.find(c => c.name === art.charity) || { emoji: '❤️', name: art.charity };
+
+  document.getElementById('detailTitle').textContent = '"' + art.title + '"';
+  document.getElementById('detailArtist').textContent = 'by ' + art.artist + ' · ' + art.medium;
+  document.getElementById('detailPrice').textContent = '$' + art.price + ' AUD';
+  document.getElementById('detailCharity').textContent = art.charity;
+  document.getElementById('detailCharityEmoji').textContent = charityInfo.emoji;
+  document.getElementById('detailDesc').textContent = art.desc || '';
+
+  const imgContainer = document.getElementById('detailImage');
+  imgContainer.innerHTML = '';
+  if (art.imageData) {
+    const img = document.createElement('img');
+    img.src = art.imageData;
+    img.style.width = '100%';
+    img.style.display = 'block';
+    imgContainer.appendChild(img);
+  } else {
+    const c = document.createElement('canvas');
+    imgContainer.appendChild(c);
+    drawGenerativeArt(c, art.seed, 600, 700);
+  }
+
+  navigate('detail');
+}
+
+// ══════════════════════════════════
+// ENQUIRY
+// ══════════════════════════════════
+
+function openEnquiry() {
+  const art = artworks.find(a => a.id === currentDetailId);
+  if (art) {
+    document.getElementById('enquiryWorkTitle').textContent = '"' + art.title + '" by ' + art.artist + ' · $' + art.price + ' AUD';
+  }
+  document.getElementById('enquiryForm').style.display = 'block';
+  document.getElementById('enquirySent').classList.remove('show');
+  document.getElementById('enquiryModal').classList.add('show');
+}
+
+function closeEnquiry() {
+  document.getElementById('enquiryModal').classList.remove('show');
+}
+
+function sendEnquiry() {
+  const name = document.getElementById('enquiryName').value;
+  const email = document.getElementById('enquiryEmail').value;
+  const message = document.getElementById('enquiryMessage').value;
+  if (!name || !email) { alert('Please enter your name and email.'); return; }
+
+  const art = artworks.find(a => a.id === currentDetailId);
+
+  // Submit to Netlify Forms
+  const formData = new URLSearchParams();
+  formData.append('form-name', 'purchase-enquiry');
+  formData.append('bot-field', '');
+  formData.append('enquiry-name', name);
+  formData.append('enquiry-email', email);
+  formData.append('enquiry-message', message);
+  formData.append('artwork-title', art ? art.title : '');
+  formData.append('artwork-artist', art ? art.artist : '');
+  formData.append('artwork-price', art ? '$' + art.price + ' AUD' : '');
+
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formData.toString()
+  })
+  .then(res => {
+    if (!res.ok) throw new Error('Enquiry failed');
+    showEnquirySuccess();
+  })
+  .catch(err => {
+    console.log('Netlify enquiry submit:', err.message, '— falling back to local');
+    showEnquirySuccess();
+  });
+}
+
+function showEnquirySuccess() {
+  document.getElementById('enquiryForm').style.display = 'none';
+  document.getElementById('enquirySent').classList.add('show');
+}
+
+// Close modal on overlay click
+document.getElementById('enquiryModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEnquiry();
+});
+
+// ══════════════════════════════════
+// SUBMIT FORM
+// ══════════════════════════════════
+
+// Charity selection
+function selectCharity(el) {
+  document.querySelectorAll('.charity-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCharity = el.dataset.charity;
+}
+
+// File upload
+const uploadZone = document.getElementById('uploadZone');
+const artworkFile = document.getElementById('artworkFile');
+
+artworkFile.addEventListener('change', handleFileSelect);
+uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) {
+    artworkFile.files = e.dataTransfer.files;
+    handleFileSelect();
+  }
+});
+
+function handleFileSelect() {
+  const file = artworkFile.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    uploadedImage = e.target.result;
+    uploadZone.classList.add('has-file');
+    document.getElementById('uploadPlaceholder').style.display = 'none';
+    const preview = document.getElementById('uploadPreview');
+    preview.style.display = 'flex';
+    const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+    preview.innerHTML = `
+      <img src="${uploadedImage}" alt="preview">
+      <div class="upload-preview-info">
+        <h4>${file.name}</h4>
+        <p>${sizeMB} MB · ${file.type}</p>
+        <button class="upload-remove" onclick="removeUpload(event)">Remove</button>
+      </div>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeUpload(e) {
+  e.stopPropagation();
+  uploadedImage = null;
+  artworkFile.value = '';
+  uploadZone.classList.remove('has-file');
+  document.getElementById('uploadPlaceholder').style.display = 'block';
+  document.getElementById('uploadPreview').style.display = 'none';
+}
+
+function handleSubmit() {
+  const title = document.getElementById('artTitle').value.trim();
+  const medium = document.getElementById('artMedium').value;
+  const price = parseInt(document.getElementById('artPrice').value);
+  const artistName = document.getElementById('artistName').value.trim();
+  const artistEmail = document.getElementById('artistEmail').value.trim();
+  const desc = document.getElementById('artDesc').value.trim();
+  const dimensions = document.getElementById('artDimensions').value.trim();
+  const bio = document.getElementById('artistBio').value.trim();
+
+  // Validation
+  if (!title) { alert('Please enter a title for your artwork.'); return; }
+  if (!medium) { alert('Please select a medium.'); return; }
+  if (!price || price < 1) { alert('Please enter a valid price.'); return; }
+  if (!artistName) { alert('Please enter your name.'); return; }
+  if (!artistEmail) { alert('Please enter your email.'); return; }
+  if (!selectedCharity) { alert('Please select a charity.'); return; }
+
+  // Disable button while submitting
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  // Submit to Netlify Forms via fetch
+  const formData = new URLSearchParams();
+  formData.append('form-name', 'artwork-submission');
+  formData.append('bot-field', '');
+  formData.append('artwork-title', title);
+  formData.append('medium', medium);
+  formData.append('description', desc);
+  formData.append('price-aud', price);
+  formData.append('dimensions', dimensions);
+  formData.append('artist-name', artistName);
+  formData.append('artist-email', artistEmail);
+  formData.append('artist-bio', bio);
+  formData.append('charity', selectedCharity);
+
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formData.toString()
+  })
+  .then(res => {
+    if (!res.ok) throw new Error('Submission failed');
+    onSubmitSuccess(title, artistName, medium, price, desc);
+  })
+  .catch(err => {
+    // If Netlify form submission fails (e.g. running locally),
+    // still show success and add to local gallery
+    console.log('Netlify form submit:', err.message, '— falling back to local');
+    onSubmitSuccess(title, artistName, medium, price, desc);
+  });
+}
+
+function onSubmitSuccess(title, artistName, medium, price, desc) {
+  // Add to local gallery
+  const newArt = {
+    id: nextId++,
+    title: title,
+    artist: artistName,
+    medium: medium,
+    price: price,
+    charity: selectedCharity,
+    desc: desc || '',
+    seed: Math.floor(Math.random() * 10000),
+    imageData: uploadedImage || null,
+  };
+  artworks.unshift(newArt);
+
+  // Reset button
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = false;
+  btn.textContent = 'Submit Listing';
+
+  // Show success
+  document.getElementById('submitForm').style.display = 'none';
+  document.getElementById('submitSuccess').classList.add('show');
+}
+
+function resetForm() {
+  document.getElementById('submitForm').style.display = 'block';
+  document.getElementById('submitSuccess').classList.remove('show');
+  document.getElementById('artTitle').value = '';
+  document.getElementById('artMedium').value = '';
+  document.getElementById('artPrice').value = '';
+  document.getElementById('artDesc').value = '';
+  document.getElementById('artDimensions').value = '';
+  document.getElementById('artistName').value = '';
+  document.getElementById('artistEmail').value = '';
+  document.getElementById('artistBio').value = '';
+  selectedCharity = null;
+  document.querySelectorAll('.charity-option').forEach(o => o.classList.remove('selected'));
+  removeUpload(new Event('click'));
+}
+
+// ══════════════════════════════════
+// HERO CANVAS
+// ══════════════════════════════════
+
+let hc, hctx, heroW, heroH, particles = [], frame = 0, heroAnimId;
+
+function initHeroCanvas() {
+  hc = document.getElementById('heroCanvas');
+  if (!hc) return;
+  hctx = hc.getContext('2d');
+  resizeHero();
+  if (heroAnimId) cancelAnimationFrame(heroAnimId);
+  drawHero();
+}
+
+function resizeHero() {
+  if (!hc || !hc.parentElement) return;
+  const rect = hc.parentElement.getBoundingClientRect();
+  hc.width = heroW = rect.width;
+  hc.height = heroH = rect.height;
+  particles = [];
+  for (let i = 0; i < 150; i++) {
+    particles.push({
+      x: Math.random() * heroW, y: Math.random() * heroH,
+      r: Math.random() * 2.5 + 0.5,
+      vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
+      hue: Math.random() * 60 + 10, alpha: Math.random() * 0.6 + 0.1
+    });
+  }
+}
+
+function drawHero() {
+  if (!hctx) return;
+  hctx.clearRect(0, 0, heroW, heroH);
+  const grad = hctx.createRadialGradient(heroW*0.5, heroH*0.35, 0, heroW*0.5, heroH*0.35, heroH*0.9);
+  grad.addColorStop(0, '#f9f3e5'); grad.addColorStop(1, '#ede5d0');
+  hctx.fillStyle = grad;
+  hctx.fillRect(0, 0, heroW, heroH);
+
+  hctx.save();
+  for (let j = 0; j < 7; j++) {
+    hctx.beginPath();
+    const yBase = heroH * (0.3 + j * 0.08);
+    hctx.moveTo(0, yBase);
+    for (let x = 0; x <= heroW; x += 6) {
+      hctx.lineTo(x, yBase + Math.sin((x / heroW) * Math.PI * 3 + frame * 0.012 + j * 0.6) * (20 + j * 5));
+    }
+    hctx.strokeStyle = `hsla(${20 + j * 10}, 60%, 45%, ${0.08 - j * 0.007})`;
+    hctx.lineWidth = 1.2;
+    hctx.stroke();
+  }
+  hctx.restore();
+
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = heroW; if (p.x > heroW) p.x = 0;
+    if (p.y < 0) p.y = heroH; if (p.y > heroH) p.y = 0;
+    hctx.beginPath();
+    hctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    hctx.fillStyle = `hsla(${p.hue}, 55%, 40%, ${p.alpha})`;
+    hctx.fill();
+  });
+
+  const shapes = [
+    { x: 0.25, y: 0.2, s: 60, t: 0.8 }, { x: 0.7, y: 0.6, s: 80, t: 1.2 },
+    { x: 0.5, y: 0.45, s: 100, t: 0.6 }, { x: 0.15, y: 0.65, s: 50, t: 1.5 },
+    { x: 0.8, y: 0.2, s: 70, t: 1.0 },
+  ];
+  const colors = ['#c4410c', '#d4a843', '#4a6741', '#8b4a2c', '#d97a4a'];
+  shapes.forEach((sh, i) => {
+    const ox = Math.sin(frame * 0.008 + sh.t) * 8;
+    const oy = Math.cos(frame * 0.007 + sh.t * 0.7) * 8;
+    const cx = sh.x * heroW + ox, cy = sh.y * heroH + oy;
+    hctx.save(); hctx.globalAlpha = 0.12;
+    hctx.strokeStyle = colors[i % colors.length]; hctx.lineWidth = 1.5;
+    if (i % 2 === 0) { hctx.strokeRect(cx - sh.s/2, cy - sh.s/2, sh.s, sh.s); }
+    else { hctx.beginPath(); hctx.arc(cx, cy, sh.s/2, 0, Math.PI * 2); hctx.stroke(); }
+    hctx.restore();
+  });
+
+  frame++;
+  heroAnimId = requestAnimationFrame(drawHero);
+}
+
+window.addEventListener('resize', resizeHero);
+
+// ══════════════════════════════════
+// INTERSECTION OBSERVER
+// ══════════════════════════════════
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+
+updateStats();
+initHeroCanvas();
+renderGallery();
+</script>
+</body>
+</html>
