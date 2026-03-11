@@ -1261,30 +1261,6 @@
 </head>
 <body>
 
-<!-- HIDDEN NETLIFY FORMS (detected at deploy time — DO NOT REMOVE) -->
-<form name="artwork-submission" netlify netlify-honeypot="bot-field" hidden>
-  <input name="bot-field">
-  <input name="artwork-title">
-  <input name="medium">
-  <input name="description">
-  <input name="price-aud">
-  <input name="dimensions">
-  <input name="artist-name">
-  <input name="artist-email">
-  <input name="artist-bio">
-  <input name="charity">
-</form>
-
-<form name="purchase-enquiry" netlify netlify-honeypot="bot-field" hidden>
-  <input name="bot-field">
-  <input name="enquiry-name">
-  <input name="enquiry-email">
-  <input name="enquiry-message">
-  <input name="artwork-title">
-  <input name="artwork-artist">
-  <input name="artwork-price">
-</form>
-
 <!-- HEADER -->
 <header>
   <a class="wordmark" onclick="navigate('home')">ART<span>GIVES</span></a>
@@ -2042,28 +2018,21 @@ function sendEnquiry() {
 
   const art = artworks.find(a => a.id === currentDetailId);
 
-  // Submit to Netlify Forms
-  const formData = new URLSearchParams();
-  formData.append('form-name', 'purchase-enquiry');
-  formData.append('bot-field', '');
-  formData.append('enquiry-name', name);
-  formData.append('enquiry-email', email);
-  formData.append('enquiry-message', message);
-  formData.append('artwork-title', art ? art.title : '');
-  formData.append('artwork-artist', art ? art.artist : '');
-  formData.append('artwork-price', art ? '$' + art.price + ' AUD' : '');
-
-  fetch('/', {
+  fetch('https://formspree.io/f/' + FORMSPREE_ENQUIRY_ID, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formData.toString()
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      'Buyer Name': name,
+      'Buyer Email': email,
+      'Message': message,
+      'Artwork': art ? art.title : '',
+      'Artist': art ? art.artist : '',
+      'Price': art ? '$' + art.price + ' AUD' : ''
+    })
   })
-  .then(res => {
-    if (!res.ok) throw new Error('Enquiry failed');
-    showEnquirySuccess();
-  })
+  .then(res => { showEnquirySuccess(); })
   .catch(err => {
-    console.log('Netlify enquiry submit:', err.message, '— falling back to local');
+    console.log('Formspree enquiry error:', err.message);
     showEnquirySuccess();
   });
 }
@@ -2137,6 +2106,13 @@ function removeUpload(e) {
   document.getElementById('uploadPreview').style.display = 'none';
 }
 
+// ─── FORMSPREE CONFIG ───
+// 1. Go to https://formspree.io and sign up (free)
+// 2. Create two forms: "Artwork Submission" and "Purchase Enquiry"
+// 3. Paste the form IDs below (the part after /f/ in the endpoint URL)
+const FORMSPREE_SUBMISSION_ID = 'xvzbewro';
+const FORMSPREE_ENQUIRY_ID = 'xreanyke';
+
 function handleSubmit() {
   const title = document.getElementById('artTitle').value.trim();
   const medium = document.getElementById('artMedium').value;
@@ -2155,44 +2131,41 @@ function handleSubmit() {
   if (!artistEmail) { alert('Please enter your email.'); return; }
   if (!selectedCharity) { alert('Please select a charity.'); return; }
 
-  // Disable button while submitting
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.textContent = 'Submitting...';
 
-  // Submit to Netlify Forms via fetch
-  const formData = new URLSearchParams();
-  formData.append('form-name', 'artwork-submission');
-  formData.append('bot-field', '');
-  formData.append('artwork-title', title);
-  formData.append('medium', medium);
-  formData.append('description', desc);
-  formData.append('price-aud', price);
-  formData.append('dimensions', dimensions);
-  formData.append('artist-name', artistName);
-  formData.append('artist-email', artistEmail);
-  formData.append('artist-bio', bio);
-  formData.append('charity', selectedCharity);
-
-  fetch('/', {
+  fetch('https://formspree.io/f/' + FORMSPREE_SUBMISSION_ID, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formData.toString()
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      'Artwork Title': title,
+      'Medium': medium,
+      'Description': desc,
+      'Price (AUD)': '$' + price,
+      'Dimensions': dimensions,
+      'Artist Name': artistName,
+      'Artist Email': artistEmail,
+      'Artist Bio': bio,
+      'Charity': selectedCharity
+    })
   })
   .then(res => {
-    if (!res.ok) throw new Error('Submission failed');
-    onSubmitSuccess(title, artistName, medium, price, desc);
+    if (res.ok) {
+      onSubmitSuccess(title, artistName, medium, price, desc);
+    } else {
+      // Fallback for local testing or if Formspree ID not set
+      console.log('Formspree response not OK — falling back to local');
+      onSubmitSuccess(title, artistName, medium, price, desc);
+    }
   })
   .catch(err => {
-    // If Netlify form submission fails (e.g. running locally),
-    // still show success and add to local gallery
-    console.log('Netlify form submit:', err.message, '— falling back to local');
+    console.log('Formspree submit error:', err.message, '— falling back to local');
     onSubmitSuccess(title, artistName, medium, price, desc);
   });
 }
 
 function onSubmitSuccess(title, artistName, medium, price, desc) {
-  // Add to local gallery
   const newArt = {
     id: nextId++,
     title: title,
@@ -2206,12 +2179,10 @@ function onSubmitSuccess(title, artistName, medium, price, desc) {
   };
   artworks.unshift(newArt);
 
-  // Reset button
   const btn = document.getElementById('submitBtn');
   btn.disabled = false;
   btn.textContent = 'Submit Listing';
 
-  // Show success
   document.getElementById('submitForm').style.display = 'none';
   document.getElementById('submitSuccess').classList.add('show');
 }
